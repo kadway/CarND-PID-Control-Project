@@ -30,13 +30,22 @@ string hasData(string s) {
   return "";
 }
 
-int main() {
+int main(int argc, char *argv[]) {
   uWS::Hub h;
-
   PID pid;
   /**
    * TODO: Initialize the pid variable.
    */
+  double Init_Kp = -0.01;
+  double Init_Ki = 0;
+  double Init_Kd = -0.01;
+  
+  if(argc > 3){
+      Init_Kp = atof(argv[1]);
+      Init_Ki = atof(argv[2]);
+      Init_Kd = atof(argv[3]);
+  }
+  pid.Init(Init_Kp, Init_Ki, Init_Kd);
 
   h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, 
                      uWS::OpCode opCode) {
@@ -63,10 +72,10 @@ int main() {
            * NOTE: Feel free to play around with the throttle and speed.
            *   Maybe use another PID controller to control the speed!
            */
-          
+          pid.UpdateError(cte);
+          steer_value = pid.TotalError(); 
           // DEBUG
-          std::cout << "CTE: " << cte << " Steering Value: " << steer_value 
-                    << std::endl;
+          std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
