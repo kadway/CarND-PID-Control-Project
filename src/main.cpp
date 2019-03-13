@@ -36,9 +36,9 @@ int main(int argc, char *argv[]) {
   /**
    * TODO: Initialize the pid variable.
    */
-  double Init_Kp = -0.01;
-  double Init_Ki = 0;
-  double Init_Kd = -0.01;
+  double Init_Kp = 0.15;
+  double Init_Ki = 0.0;
+  double Init_Kd = 0.9;
   
   if(argc > 3){
       Init_Kp = atof(argv[1]);
@@ -72,6 +72,7 @@ int main(int argc, char *argv[]) {
            * NOTE: Feel free to play around with the throttle and speed.
            *   Maybe use another PID controller to control the speed!
            */
+          //pid.Twiddle(cte);
           pid.UpdateError(cte);
           steer_value = pid.TotalError(); 
           // DEBUG
@@ -79,9 +80,9 @@ int main(int argc, char *argv[]) {
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
-          msgJson["throttle"] = 0.3;
+          msgJson["throttle"] = std::max(0.5-abs(cte), 0.1);
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-          std::cout << msg << std::endl;
+          //std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
         }  // end "telemetry" if
       } else {
