@@ -2,6 +2,9 @@
 #define PID_H
 #include <vector>
 
+
+#define MAX_TWIDDLE_RUNS 0
+
 using std::vector;
 
 class PID {
@@ -40,6 +43,9 @@ public:
     
     void Twiddle(double cte);
     
+    
+    double Speed(double cte);
+    
 private:
     /**
      * PID Errors
@@ -54,7 +60,7 @@ private:
     //double Kp;
     //double Ki;
     //double Kd;
-    int state, state_idx;
+    int timestep, idx, runtime, twiddle_run;
     double best_err;
     vector <double> err;
     vector <double> gain;

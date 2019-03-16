@@ -37,8 +37,8 @@ int main(int argc, char *argv[]) {
    * TODO: Initialize the pid variable.
    */
   double Init_Kp = 0.15;
-  double Init_Ki = 0.0;
-  double Init_Kd = 0.9;
+  double Init_Ki = 0.00;
+  double Init_Kd = 2.0;
   
   if(argc > 3){
       Init_Kp = atof(argv[1]);
@@ -63,24 +63,28 @@ int main(int argc, char *argv[]) {
         if (event == "telemetry") {
           // j[1] is the data JSON object
           double cte = std::stod(j[1]["cte"].get<string>());
-          double speed = std::stod(j[1]["speed"].get<string>());
-          double angle = std::stod(j[1]["steering_angle"].get<string>());
+          //double speed = std::stod(j[1]["speed"].get<string>());
+          //double angle = std::stod(j[1]["steering_angle"].get<string>());
           double steer_value;
+          double throttle;
           /**
            * TODO: Calculate steering value here, remember the steering value is
            *   [-1, 1].
            * NOTE: Feel free to play around with the throttle and speed.
            *   Maybe use another PID controller to control the speed!
            */
-          //pid.Twiddle(cte);
+          
           pid.UpdateError(cte);
-          steer_value = pid.TotalError(); 
+          pid.Twiddle(cte);
+          steer_value = pid.TotalError();
+          throttle = pid.Speed(cte);
           // DEBUG
-          std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
+          std::cout << "CTE: " << cte << " Steering Value: " << steer_value << " Throttle value: "<< throttle << std::endl;
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
-          msgJson["throttle"] = std::max(0.5-abs(cte), 0.1);
+          msgJson["throttle"] = throttle;
+          
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           //std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
