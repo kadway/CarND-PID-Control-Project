@@ -1,7 +1,7 @@
 # CarND-Controls-PID
 Self-Driving Car Engineer Nanodegree Program
 
-##Introduction
+## Introduction
 
 This project implements a PID controller in C++ to maneuver a vehicle around a virtual track using Udacity's simulator for the Self-Driving Car Engineer Nanodegree Program.
 
@@ -9,10 +9,10 @@ The simulator provides the cross track error (CTE) which is used to calculate th
 
 For automatic tuning of the PID parameters Twiddle is implemented, it helps to see to which values the gain parameters tend to go when we try to minimize CTE.
 
-##Reflection
+## Reflection
 
 
-###The PID controller stands for Proportional, Integral and Derivative controller.
+### The PID controller stands for Proportional, Integral and Derivative controller.
 
 The "P", proportional part, acts here to counteract the CTE by steering the car in the opposite direction. It tries to steer the car back to the center of the lane.
 The higher it is the faster would the car steer in the opposite direction of the CTE. This component alone tends to overshoot the center lane. 
