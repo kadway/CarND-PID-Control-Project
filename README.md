@@ -1,6 +1,49 @@
 # CarND-Controls-PID
 Self-Driving Car Engineer Nanodegree Program
 
+##Introduction
+
+This project implements a PID controller in C++ to maneuver a vehicle around a virtual track using Udacity's simulator for the Self-Driving Car Engineer Nanodegree Program.
+
+The simulator provides the cross track error (CTE) which is used to calculate the steering angle of the car and it's throttle and send them to the simulator.
+
+For automatic tuning of the PID parameters Twiddle is implemented, it helps to see to which values the gain parameters tend to go when we try to minimize CTE.
+
+##Reflection
+
+
+###The PID controller stands for Proportional, Integral and Derivative controller.
+
+The "P", proportional part, acts here to counteract the CTE by steering the car in the opposite direction. It tries to steer the car back to the center of the lane.
+The higher it is the faster would the car steer in the opposite direction of the CTE. This component alone tends to overshoot the center lane. 
+It is calculated with the P gain times the proportional error (Kp * p_error), the p_error in this case is of opposite signal to the actual CTE.(p_error = -cte)
+
+The "I", integral part, will compensate for any bias that may exist, like for example a steering drift. It is the sum of all CTE values up to present time (i_error = cte + previous cte)
+As there seems to be no bias from the simulator, the integral component seem to have little to no improvement to the error minimization, maybe it does improve CTE on harder curves on the road but experimentally no significant improvement was seen.
+Its calculated with the I gain times the integral error (Ki * i_error).
+
+The "D", derivative or differential part, is the difference of the CTE error from one period of time to the next.
+The differential part acts to smooth the approach of the car to the center lane and without it, the P component would always make the car overshoot de center lane.
+It is calculated with the D gain times the differential error (Kd * d_error). d_error is the difference from the last time CTE (d_error = cte - previous cte)
+
+### The choice of gain coefficients
+
+At first the coefficients where chosen to a small value of K = 0.1 given that the steering would be in the range of [-1,1] and the error should not be very big.
+The integral part was the first to be discarded because it was making the car go in circles unless if its gain was a value some orders of magnitude bellow, like 0.00001, in which case it would never have much effect on the final error and consequently on the steering.
+To reduce the oscillations of the car from one side of the road to the next the derivative gain was increased to 1 and it showed great results when the car was driving a bit faster (up until 30mph).
+The proportional gain was also increased experimentally but the higher it was the more the car would oscillate even when the error was small and this would then lead to increasing the D part again.
+The problem with this approach is that is very hard to tune the parameters manually to have a good performance on a straight track as well as during curves.
+
+For this reason Twiddle was implemented. Twiddle tries to check if the error improves when increasing or decreasing the gain parameters.
+It did not solve the previous problem of having a good set of gain parameters for curves and for straight parts of the track but it helped to see to where the parameters converge over time.
+So I ended choosing the parameters with a mixed solution, both manually and with Twiddle and settled with Kp = 0.15, Ki = 0, Kd = 2.0.
+
+Also because the performance of the PID is very dependent of the speed at which we are driving, after settling the gain parameters (chosen at a constant 0.3 throttle) the throttle was modified to enable the car to speed up when its CTE is less and slow down when CTE starts to increase.
+A maximum of 0.5 throttle was chosen manually for when CTE = 0. As CTE increases the max throttle is then reduced by half of the CTE modulus and limited to a minimum of 0.1 throttle.
+This helps specially on the curves where the CTE tend to increase more than on straight parts of the track.
+
+[Here is a video of the final result of this PID and throttle control:](pid.mp4)
+
 ---
 
 ## Dependencies
